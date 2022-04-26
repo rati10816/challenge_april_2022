@@ -1,27 +1,6 @@
-# ChallengeApril2022
+პროექტის აღწერა: 
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.3.3.
+გაკეთებულია 2 გვერდი, დეშბორდი და ცხრილი. დეშბორდის გვერდზე გამოტანილია 3 გრაფიკი, მითითებული ინსტრუქციის შესაბამისად. N1 და N3 გრაფიკი სრულყოფილად მუშაობს და ასრულებს ყველა მოთხოვნას. ხოლო რაც შეეხება N2 გრაფიკს, დროის უკმარისობის გამო ჯერ-ჯერობით ის მხოლოდ Echart-ის Default მონაცემებით მაქვს შემოტანილი. 
+რაც შეეხება ცხრილის გვერდს, მასზე გამოტანილია @angular/material/table-ის სტანდარტული ცხრილი, რომელსაც გამოაქვს Top 20 მერჩანტი. ცხრილის ფუნქციონალში გაწერილია გადაფურცვლის, ჩანაწერთა რაოდენობის მითითების და ცხრილის სორტირების ფუნქციები. აღნიშნული ფუნქციები სრულად გამართულად არ მუშაობს, თუმცა პრინციპულად გაგებული მაქვს მათი დანიშნულება. მესმის რომ პროექტი დაუსრულებელია და ბევრი ფუნქციონალი გაუმართავი, ამიტომაც გავაგრძელებ პროექტზე მუშაობას და მის განვითარებას. 
 
-## Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+ P.S. ზემოაღნიშნული ფუნქციონალის მისაღწევად დამჭირდა შემესწავლა Angular და TS ტექნოლოგიები აბსოლუტური 0-დან 1 კვირის განმავლობაში. გთხოვთ პროექტის განხილვისას გაითვალისწინოთ ეს ფაქტორი. 
