@@ -106,13 +106,13 @@ export class DashboardComponent implements OnInit {
       var button1 = document.getElementById("button1");
       button1?.addEventListener("click", volume)
 
-      chart2(chartDataQuantity)
+      chart2(chartDataQuantity, "Quantity")
      function quantity() {
-      chart2(chartDataQuantity);
+      chart2(chartDataQuantity, "Quantity");
      }
      
      function volume(){
-       chart2(chartDataVolume);
+       chart2(chartDataVolume, "Volume");
      }
 
     })
@@ -212,7 +212,7 @@ function chart1(chart1_data) {
 
 }
 
-function chart2(chart2_data) {
+function chart2(chart2_data, chart2_name) {
 
   var dom = document.getElementById("container")!;
   var myChart = echarts.init(dom);
@@ -267,7 +267,7 @@ function chart2(chart2_data) {
     },
     series: [
       {
-        name: 'Punch Card',
+        name: chart2_name,
         type: 'heatmap',
         data: data,
         label: {
