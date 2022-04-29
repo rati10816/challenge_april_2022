@@ -1,7 +1,9 @@
 import { Component, OnInit, } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as echarts from 'echarts';
+import { MatTableDataSource } from '@angular/material/table';
 import { min } from 'rxjs';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -10,6 +12,9 @@ import { min } from 'rxjs';
 })
 
 export class DashboardComponent implements OnInit {
+  headers = ["Company", "Amount"]
+
+  rows;
 
   constructor(private http: HttpClient) {
   }
@@ -54,6 +59,18 @@ export class DashboardComponent implements OnInit {
       "includes": ["dimension", "date", "volume"]
     }
     const body4 = {
+      "dimension": "merchant",
+      "types": [
+        "none"
+      ],
+      "gteDate": "2018-01-01",
+      "lteDate": "2018-01-31",
+      "includeMetrics": [
+        "volume"
+      ]
+    }
+
+    const body5 = {
       "dimension": "merchant",
       "types": [
         "none"
@@ -146,19 +163,35 @@ export class DashboardComponent implements OnInit {
           DividendList.push(dataItem.volume)
         }
       }
-
+      
+      // remove duplicates
       dateList = dateList.filter((item,
         index) => dateList.indexOf(item) === index)
 
-      // for (var i of D.data.entities) {
-      //   if (i.dimension == 'Income From Deposits') {
-      //     console.log(i.date.substring(0,10) + ' -> ' + i.volume)
-      //   }
-      // }
-      // console.log(OtherList)
-      // console.log(categoryList)
-
       chart3(categoryList, dateList, SalaryIncomeList, DepositsList, BonusList, OtherList, DividendList)
+
+    })
+    
+    this.http.post<any>(app_url, body5).subscribe(D => {
+
+      var sortedData = D.data.sort(function(a, b) {
+        return b.volume - a.volume
+    }).slice(0, 20);
+
+    console.log(sortedData)
+
+    var counter = 1
+    var rowList:  any[] = [];
+    for (var dataItem of sortedData) {
+
+      var rowDict = {
+        "Company" : counter + ". " + dataItem.dimension,
+        "Amount" : dataItem.volume
+      } 
+      counter ++
+      rowList.push(rowDict)
+      this.rows = rowList
+    }
 
     })
 
