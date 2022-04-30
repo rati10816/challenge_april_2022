@@ -105,17 +105,30 @@ export class DashboardComponent implements OnInit {
       var chartDataQuantity: any[] = [];
       for (var dataItem of D.data) {
         const wd = [6,5,4,3,2,1,0];
+        var weekDay = wd[new Date(dataItem.dimension).getDay()];
+
+        var weekNumber =  new Date(dataItem.dimension);
+        const date = weekNumber.getDate();
+        const day = weekNumber.getDay();
+        const weekOfMonth = Math.ceil((date - 1 - day) / 7);
+
         chartDataVolume.push([
-          wd[new Date(dataItem.dimension).getDay()],
-          new Date(dataItem.dimension).getDate()-1,
+          weekDay,
+          weekOfMonth,
           dataItem.volume
         ]);
+        
         chartDataQuantity.push([
-          wd[new Date(dataItem.dimension).getDay()],
-          new Date(dataItem.dimension).getDate()-1,
+          weekDay,
+          weekOfMonth,
           dataItem.quantity
         ]);
       }
+
+      // get week numbers
+      var weeksNumber = D.data[0].dimension;
+      var year = weeksNumber.slice(0,4)
+      var month = weeksNumber.slice(5,7)
       
       var button = document.getElementById("button");
       button?.addEventListener("click", quantity)
@@ -123,13 +136,13 @@ export class DashboardComponent implements OnInit {
       var button1 = document.getElementById("button1");
       button1?.addEventListener("click", volume)
 
-      chart2(chartDataQuantity, "Quantity")
+      chart2(chartDataQuantity, "Quantity", year, month)
      function quantity() {
-      chart2(chartDataQuantity, "Quantity");
+      chart2(chartDataQuantity, "Quantity", year, month);
      }
      
      function volume(){
-       chart2(chartDataVolume, "Volume");
+       chart2(chartDataVolume, "Volume", year, month);
      }
 
     })
@@ -177,8 +190,6 @@ export class DashboardComponent implements OnInit {
       var sortedData = D.data.sort(function(a, b) {
         return b.volume - a.volume
     }).slice(0, 20);
-
-    console.log(sortedData)
 
     var counter = 1
     var rowList:  any[] = [];
@@ -245,7 +256,7 @@ function chart1(chart1_data) {
 
 }
 
-function chart2(chart2_data, chart2_name) {
+function chart2(chart2_data, chart2_name, year, month_number) {
 
   var dom = document.getElementById("container")!;
   var myChart = echarts.init(dom);
@@ -255,14 +266,30 @@ function chart2(chart2_data, chart2_name) {
   
   var hours: any[] = [];
 
-  for (var i = 1; i <= 31; i++) {
-    hours.push(i);
-  }
+  // count weeks in the month
+  weekCount(year, month_number)
+
+  function weekCount(year, month_number) {
+console.log(month_number)
+    var firstOfMonth = new Date(year, month_number-1, 1);
+    var lastOfMonth = new Date(year, month_number, 0);
+
+    var used = firstOfMonth.getDay() + lastOfMonth.getDate();
+
+    for (var i = 1; i <= Math.ceil( used / 7); i++) {
+      hours.push(i);
+    }
+}
   
   // prettier-ignore
   const days = [
-    'Saturday', 'Friday', 'Thursday',
-    'Wednesday', 'Tuesday', 'Monday', 'Sunday'
+    'Saturday', 
+    'Friday', 
+    'Thursday',
+    'Wednesday', 
+    'Tuesday', 
+    'Monday', 
+    'Sunday'
   ];
   // prettier-ignore
   const data = chart2_data.map(function (item) {
