@@ -149,7 +149,6 @@ export class DashboardComponent implements OnInit {
       for (var dataItem of D.data.entities) {
         var date = dataItem.date;
         var category = dataItem.dimension;
-        var income = dataItem.volume;
         categoryList.push(category)
         dateList.push(date.substring(0, 10))
         if (dataItem.dimension == 'Salary') {

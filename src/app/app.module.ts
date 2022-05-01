@@ -10,7 +10,7 @@ import { AppRoutingModule, routingComponents } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AgGridModule } from 'ag-grid-angular';
 import { TablesComponent } from './tables/tables.component';
-import 'ag-grid-enterprise';
+// import 'ag-grid-enterprise';
 
 @NgModule({
   declarations: [
