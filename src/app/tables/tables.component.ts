@@ -1,22 +1,97 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatSort, Sort } from '@angular/material/sort';
-import { LiveAnnouncer } from '@angular/cdk/a11y';
+import { Component, OnInit, ViewChild} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { PeriodicElement } from '../Interface/PeriodicElement';
+import { Observable } from 'rxjs';
+import { of } from 'rxjs'; 
+import { GridApi, FirstDataRenderedEvent, GridReadyEvent } from 'ag-grid-community';
 
-
-var ELEMENT_DATA: PeriodicElement[] = [
-]
 
 @Component({
   selector: 'app-tables',
   templateUrl: './tables.component.html',
   styleUrls: ['./tables.component.scss']
 })
+
 export class TablesComponent implements OnInit {
-  ngOnInit(): void {
+  private gridApi!: GridApi;
+
+
+  columnDefs = [
+    { field: 'Dimension', sortable: true, filter: true}, // checkboxSelection: true, rowGroup: true},
+    { field: 'Date', sortable: true, filter: true},
+    { field: 'Quantity', sortable: true, filter: true},
+    { field: 'Volume (GEL)', sortable: true, filter: true},
+    { field: 'Average (GEL)', sortable: true, filter: true},
+    { field: 'Difference quantity', sortable: true, filter: true},
+    { field: 'Difference volume', sortable: true, filter: true},
+];
+
+
+
+  rowData: Observable<any[]>;
+
+
+  public rowSelection = 'multiple';
+  public rowGroupPanelShow = 'always';
+  public pivotPanelShow = 'always';
+  public paginationPageSize = 10;
+
+  onFirstDataRendered(params: FirstDataRenderedEvent) {
+    params.api.paginationGoToPage(0);
+  }
+
+  onPageSizeChanged() {
+    var value = (document.getElementById('page-size') as HTMLInputElement).value;
+    
+    this.gridApi.paginationSetPageSize(Number(value));
+  }
+  
+
+  constructor(private http: HttpClient) {
+
+    this.rowData = this.http.get<any[]>('https://www.ag-grid.com/example-assets/row-data.json');
+
+  }
+
+  ngOnInit() {
+
+    const body1 = {
+      "dimension": "parent-category",
+      "types": [
+        "spending", "withdrawal"
+      ],
+      "gteDate": "2018-01-01",
+      "lteDate": "2018-01-31",
+      "includeMetrics": [
+        "volume"
+      ]
+    }
+
+    const body2 = {
+      "dimension": "date",
+      "types": [
+        "spending", "withdrawal"
+      ],
+      "gteDate": "2018-01-01",
+      "lteDate": "2018-01-31",
+      "includeMetrics": [
+        "volume", "quantity"
+      ]
+    }
+
+    const body3 = {
+      "dimension": "category",
+      "types": [
+        "income"
+      ],
+      "gteDate": "2018-01-01",
+      "lteDate": "2018-01-31",
+      "sortBy": "date",
+      "sortDirection": "asc",
+      "pageIndex": 0,
+      "pageSize": 50,
+      "includes": ["dimension", "date", "volume"]
+    }
+
     const body4 = {
       "dimension": "merchant",
       "types": [
@@ -28,43 +103,41 @@ export class TablesComponent implements OnInit {
         "volume"
       ]
     }
-    const app_url = 'https://api.next.insight.optio.ai/api/v2/analytics/transactions/facts/aggregate'
 
-    var i = 0;
-    this.http.post<any>(app_url, body4).subscribe(D => {
-      ELEMENT_DATA = [];
-      for (var dataItem of D.data.slice(1, 21)) {
-        ELEMENT_DATA.push(dataItem);
-        // console.log(date, transactions, volume)
+    const app_url = 'https://api.next.insight.optio.ai/api/v2/analytics/transactions/facts/aggregate'
+    const app_url2 = 'https://api.next.insight.optio.ai/api/v2/analytics/transactions/facts/find'
+
+
+    this.http.post<any>(app_url, body1).subscribe(D => {
+
+      var datalist_1: any[] = [];
+      for (var dataItem of D.data) {
+        var dataDict = { Dimension: dataItem.dimension, 
+        Date: '', 
+        Quantity: "", 
+        'Volume (GEL)': dataItem.volume, 
+        'Average (GEL)': "", 
+        'Difference quantity': "", 
+        'Difference volume': "" }
+
+        datalist_1.push(dataDict)
+          
       }
-      console.log(ELEMENT_DATA);
+
+      this.rowData = of(datalist_1)
+
+    }) 
+
+    this.http.post<any>(app_url, body2).subscribe(D => {
+
+      var datalist_2: any[] = [];
+      console.log(D.data)
 
     })
+
+
+
+
   }
-
-  displayedColumns: string[] = ['dimension', 'volume'];
-
-  @ViewChild('paginator')
-  paginator!: MatPaginator;
-  @ViewChild(MatSort)
-  sort!: MatSort;
-  constructor(
-    private _liveAnnouncer: LiveAnnouncer,
-    private http: HttpClient
-  ) { }
-  dataSource!: MatTableDataSource<PeriodicElement>;
-
-  annouceSortChange(sortState: Sort) {
-    if (sortState.direction) {
-      this._liveAnnouncer.announce('sorted ${sortState.direction}ending')
-    } else {
-      this._liveAnnouncer.announce('Sorted Cleared')
-    }
-  }
-  ngAfterContentInit() {
-    this.dataSource = new MatTableDataSource(ELEMENT_DATA)
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
-  }
-
 }
+

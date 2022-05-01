@@ -69,19 +69,7 @@ export class DashboardComponent implements OnInit {
         "volume"
       ]
     }
-
-    const body5 = {
-      "dimension": "merchant",
-      "types": [
-        "none"
-      ],
-      "gteDate": "2018-01-01",
-      "lteDate": "2018-01-31",
-      "includeMetrics": [
-        "volume"
-      ]
-    }
-
+    
     const app_url = 'https://api.next.insight.optio.ai/api/v2/analytics/transactions/facts/aggregate'
     const app_url2 = 'https://api.next.insight.optio.ai/api/v2/analytics/transactions/facts/find'
 
@@ -106,7 +94,7 @@ export class DashboardComponent implements OnInit {
       for (var dataItem of D.data) {
         const wd = [6,5,4,3,2,1,0];
         var weekDay = wd[new Date(dataItem.dimension).getDay()];
-
+        
         var weekNumber =  new Date(dataItem.dimension);
         const date = weekNumber.getDate();
         const day = weekNumber.getDay();
@@ -185,7 +173,7 @@ export class DashboardComponent implements OnInit {
 
     })
     
-    this.http.post<any>(app_url, body5).subscribe(D => {
+    this.http.post<any>(app_url, body4).subscribe(D => {
 
       var sortedData = D.data.sort(function(a, b) {
         return b.volume - a.volume

@@ -8,6 +8,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
 import { AppRoutingModule, routingComponents } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { AgGridModule } from 'ag-grid-angular';
+import { TablesComponent } from './tables/tables.component';
+import 'ag-grid-enterprise';
 
 @NgModule({
   declarations: [
@@ -21,7 +24,8 @@ import { AppComponent } from './app.component';
     BrowserAnimationsModule,
     MatPaginatorModule,
     MatSortModule,
-    MatTableModule
+    MatTableModule,
+    AgGridModule.withComponents([TablesComponent])
   ],
   providers: [],
   bootstrap: [AppComponent]
