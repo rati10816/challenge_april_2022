@@ -1,8 +1,11 @@
 import { Component, OnInit} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, range } from 'rxjs';
 import { of } from 'rxjs'; 
-import { GridApi, FirstDataRenderedEvent, GridReadyEvent } from 'ag-grid-community';
+import { GridApi, FirstDataRenderedEvent, GridReadyEvent, StandardMenuFactory } from 'ag-grid-community';
+import {FormGroup, FormControl} from '@angular/forms';
+import {MatDatepickerInputEvent} from '@angular/material/datepicker';
+// import { start } from 'repl';
 
 
 @Component({
@@ -14,7 +17,10 @@ import { GridApi, FirstDataRenderedEvent, GridReadyEvent } from 'ag-grid-communi
 export class TablesComponent implements OnInit {
   public gridApi!: GridApi;
 
-
+  range = new FormGroup({
+    start: new FormControl(),
+    end: new FormControl(),
+  });
 
   columnDefs = [
     { field: 'Dimension', sortable: true, filter: true}, // checkboxSelection: true, rowGroup: true},
@@ -48,7 +54,8 @@ export class TablesComponent implements OnInit {
 
   onPageSizeChanged() {
     var value = (document.getElementById('page-size') as HTMLInputElement).value;
-    this.gridApi.paginationSetPageSize(Number(value));
+    this.paginationPageSize =(Number(value));
+    console.log(this.paginationPageSize)
   }
 
   constructor(private http: HttpClient) {
@@ -57,17 +64,146 @@ export class TablesComponent implements OnInit {
 
   ngOnInit() {
 
-    const body1 = {
-      "dimension": "parent-category",
-      "types": [
-        "spending", "withdrawal"
-      ],
-      "gteDate": "2018-01-01",
-      "lteDate": "2018-01-31",
-      "includeMetrics": [
-        "volume"
-      ]
-    }
+    var body1
+
+    // Get date range and generate body1
+    this.range.valueChanges.subscribe(x => {
+      var startDate
+      var endDate
+
+      if (x.start != null && x.end == null) {
+        startDate = new Date(x.start).toISOString().slice(0, 10);
+        
+        body1 = {
+          "dimension": "parent-category",
+          "types": [
+            "spending", "withdrawal"
+          ],
+          "gteDate": startDate,
+          "includes": [
+            "volume", "quantity", "date", "dimension", "average", "differenceVolume", "differenceQuantity"
+          ],
+          "pageSize": this.paginationPageSize
+        }  
+
+
+        this.http.post<any>(app_url, body1).subscribe(D => {
+
+          var datalist_1: any[] = [];
+          for (var dataItem of D.data.entities) {
+            var dataDict = { Dimension: dataItem.dimension, 
+            Date: dataItem.date, 
+            Quantity: dataItem.quantity, 
+            'Volume (GEL)': dataItem.volume, 
+            'Average (GEL)': dataItem.average, 
+            'Difference quantity': dataItem.differenceQuantity, 
+            'Difference volume': dataItem.differenceVolume }
+    
+            datalist_1.push(dataDict)
+              
+          }
+          
+          this.rowData = of(datalist_1)
+          let chart1Row = (data) => {
+            this.rowData = of(datalist_1)
+          }  
+            
+          var button = document.getElementById("chart1");
+          button?.addEventListener("click", chart1Row)
+    
+        }) 
+        
+      }
+
+      if (x.end != null && x.start == null) {
+        endDate = new Date(x.end).toISOString().slice(0, 10);
+        
+        body1 = {
+          "dimension": "parent-category",
+          "types": [
+            "spending", "withdrawal"
+          ],
+          "lteDate": endDate,
+          "includes": [
+            "volume", "quantity", "date", "dimension", "average", "differenceVolume", "differenceQuantity"
+          ],
+          "pageSize": this.paginationPageSize
+        }  
+        
+        this.http.post<any>(app_url, body1).subscribe(D => {
+
+          var datalist_1: any[] = [];
+          for (var dataItem of D.data.entities) {
+            var dataDict = { Dimension: dataItem.dimension, 
+            Date: dataItem.date, 
+            Quantity: dataItem.quantity, 
+            'Volume (GEL)': dataItem.volume, 
+            'Average (GEL)': dataItem.average, 
+            'Difference quantity': dataItem.differenceQuantity, 
+            'Difference volume': dataItem.differenceVolume }
+    
+            datalist_1.push(dataDict)
+              
+          }
+          
+          this.rowData = of(datalist_1)
+          let chart1Row = (data) => {
+            this.rowData = of(datalist_1)
+          }  
+            
+          var button = document.getElementById("chart1");
+          button?.addEventListener("click", chart1Row)
+    
+        }) 
+
+      }
+
+      else if (x.end != null && x.start != null) {
+        startDate = new Date(x.start).toISOString().slice(0, 10);
+        endDate = new Date(x.end).toISOString().slice(0, 10);
+
+        body1 = {
+          "dimension": "parent-category",
+          "types": [
+            "spending", "withdrawal"
+          ],
+          "gteDate": startDate,
+          "lteDate": endDate,
+          "includes": [
+            "volume", "quantity", "date", "dimension", "average", "differenceVolume", "differenceQuantity"
+          ],
+          "pageSize": this.paginationPageSize
+        }  
+       
+        this.http.post<any>(app_url, body1).subscribe(D => {
+
+          var datalist_1: any[] = [];
+          for (var dataItem of D.data.entities) {
+            var dataDict = { Dimension: dataItem.dimension, 
+            Date: dataItem.date, 
+            Quantity: dataItem.quantity, 
+            'Volume (GEL)': dataItem.volume, 
+            'Average (GEL)': dataItem.average, 
+            'Difference quantity': dataItem.differenceQuantity, 
+            'Difference volume': dataItem.differenceVolume }
+    
+            datalist_1.push(dataDict)
+              
+          }
+          
+          this.rowData = of(datalist_1)
+          let chart1Row = (data) => {
+            this.rowData = of(datalist_1)
+          }  
+            
+          var button = document.getElementById("chart1");
+          button?.addEventListener("click", chart1Row)
+    
+        }) 
+
+      }
+
+   })
 
     const body2 = {
       "dimension": "date",
@@ -76,9 +212,10 @@ export class TablesComponent implements OnInit {
       ],
       "gteDate": "2018-01-01",
       "lteDate": "2018-01-31",
-      "includeMetrics": [
-        "volume", "quantity"
-      ]
+      "includes": [
+        "volume", "quantity", "date"
+      ],
+      "pageSize": 20
     }
 
     const body3 = {
@@ -92,63 +229,18 @@ export class TablesComponent implements OnInit {
       "sortDirection": "asc",
       "pageIndex": 0,
       "pageSize": 50,
-      "includes": ["dimension", "date", "volume"]
+      "includes": ["dimension", "date", "volume", "quantity", "average", "differenceVolume", "differenceQuantity"],
     }
 
-    const body4 = {
-      "dimension": "merchant",
-      "types": [
-        "none"
-      ],
-      "gteDate": "2018-01-01",
-      "lteDate": "2018-01-31",
-      "includeMetrics": [
-        "volume"
-      ]
-    }
+    const app_url = 'https://api.next.insight.optio.ai/api/v2/analytics/transactions/facts/find'
 
-    const app_url = 'https://api.next.insight.optio.ai/api/v2/analytics/transactions/facts/aggregate'
-    const app_url2 = 'https://api.next.insight.optio.ai/api/v2/analytics/transactions/facts/find'
-
-
-    this.http.post<any>(app_url, body1).subscribe(D => {
-
-      var datalist_1: any[] = [];
-      for (var dataItem of D.data) {
-        var dataDict = { Dimension: dataItem.dimension, 
-        Date: '', 
-        Quantity: "", 
-        'Volume (GEL)': dataItem.volume, 
-        'Average (GEL)': "", 
-        'Difference quantity': "", 
-        'Difference volume': "" }
-
-        datalist_1.push(dataDict)
-          
-      }
-      
-      this.rowData = of(datalist_1)
-      let chart1Row = (data) => {
-        this.rowData = of(datalist_1)
-      }  
-  
-      // function chart1Row(data) {
-      //   this.rowData = of(datalist_1)
-      // }
-        
-      var button = document.getElementById("chart1");
-      button?.addEventListener("click", chart1Row)
-  
-      // this.rowData = of(datalist_1)
-
-    }) 
 
     this.http.post<any>(app_url, body2).subscribe(D => {
 
       var datalist_2: any[] = [];
-      for (var dataItem of D.data) {
+      for (var dataItem of D.data.entities) {
         var dataDict = { Dimension: dataItem.dimension, 
-        Date: dataItem.gteDate,
+        Date: dataItem.date,
         Quantity: dataItem.quantity,
         'Volume (GEL)': dataItem.volume, 
         'Average (GEL)': "", 
@@ -168,25 +260,25 @@ export class TablesComponent implements OnInit {
 
     })
 
-
-    this.http.post<any>(app_url2, body3).subscribe(D => {
+    this.http.post<any>(app_url, body3).subscribe(D => {
       
       var datalist_3: any[] = [];
       for (var dataItem of D.data.entities) {
         var dataDict = { Dimension: dataItem.dimension, 
         Date: dataItem.date,
-        Quantity: "",
+        Quantity: dataItem.quantity,
         'Volume (GEL)': dataItem.volume, 
-        'Average (GEL)': "", 
-        'Difference quantity': "", 
-        'Difference volume': "" }
+        'Average (GEL)': dataItem.average, 
+        'Difference quantity': dataItem.differenceQuantity, 
+        'Difference volume': dataItem.differenceVolume
+      }
 
         datalist_3.push(dataDict)
 
       }
 
       let chart3Row = (data) => {
-        console.log(11)
+
         this.rowData = of(datalist_3)
       }  
 
@@ -194,9 +286,6 @@ export class TablesComponent implements OnInit {
       button?.addEventListener("click", chart3Row)
 
     })
-
-
-
 
 
 
